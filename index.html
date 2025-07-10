@@ -1,10 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Wallpaper Gallery</title>
+  <title>Wally</title>
   <style>
+    :root {
+      --bg-light: #f4f4f4;
+      --text-light: #333;
+      --bg-dark: #121212;
+      --text-dark: #f4f4f4;
+      --card-bg-dark: #1e1e1e;
+      --accent-dark: #ffffff20;
+      --accent-light: #00000010;
+      --primary: #4f46e5;
+    }
+
+    html[data-theme="dark"] {
+      background-color: var(--bg-dark);
+      color: var(--text-dark);
+    }
+
+    html[data-theme="light"] {
+      background-color: var(--bg-light);
+      color: var(--text-light);
+    }
+
     * {
       box-sizing: border-box;
     }
@@ -12,39 +33,71 @@
     body {
       margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f4f4f4;
-      color: #333;
+      transition: background-color 0.3s, color 0.3s;
     }
 
     header {
       display: flex;
       align-items: center;
-      justify-content: center;
-      position: relative;
-      padding: 1rem;
-      background-color: #fff;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      justify-content: space-between;
+      padding: 1rem 2rem;
+      background: linear-gradient(135deg, #3b82f6, #9333ea);
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     header h1 {
       margin: 0;
       font-size: 1.8rem;
+      color: #fff;
     }
 
-    .back-arrow {
-      position: absolute;
-      left: 1rem;
-      font-size: 1.5rem;
-      text-decoration: none;
-      color: #333;
-      display: none;
+    .theme-toggle {
       cursor: pointer;
+      font-size: 0.9rem;
+      padding: 0.4rem 0.7rem;
+      border-radius: 6px;
+      border: 1px solid #fff;
+      background-color: transparent;
+      color: #fff;
+      transition: background-color 0.3s, color 0.3s, border-color 0.3s;
     }
 
     .container {
-      max-width: 800px;
+      max-width: 900px;
       margin: 2rem auto;
       padding: 0 1rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      justify-content: center;
+    }
+
+    .tab {
+      cursor: pointer;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      border: 1px solid currentColor;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    html[data-theme="dark"] .tab.active {
+      background-color: var(--accent-dark);
+      color: var(--text-dark);
+    }
+
+    html[data-theme="light"] .tab.active {
+      background-color: var(--accent-light);
+      color: var(--text-light);
     }
 
     .gallery {
@@ -57,7 +110,7 @@
       width: 100%;
       height: auto;
       border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
       transition: transform 0.3s;
       cursor: pointer;
     }
@@ -70,121 +123,199 @@
       text-align: center;
       padding: 1rem;
       font-size: 0.9rem;
-      color: #777;
+      opacity: 0.7;
     }
 
-    /* Overlay styles */
+    /* Overlay */
     .overlay {
       display: none;
       position: fixed;
       top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.85);
-      justify-content: center;
-      align-items: center;
+      width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.95);
+      flex-direction: column;
       z-index: 9999;
-    }
-
-    .overlay img {
-      max-width: 90%;
-      max-height: 90%;
-      border-radius: 10px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      overflow: auto;
     }
 
     .overlay.active {
       display: flex;
     }
 
+    .overlay-header {
+      color: #fff;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .overlay-header .back-arrow {
+      font-size: 1.5rem;
+      cursor: pointer;
+      margin-right: 1rem;
+    }
+
+    .overlay-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    .overlay-content img {
+      max-width: 90%;
+      max-height: 80vh;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+
+    .overlay-title {
+      color: #fff;
+      font-size: 1.2rem;
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    .overlay-info {
+      color: #ccc;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+      text-align: center;
+    }
+
     @media (max-width: 500px) {
       header h1 {
         font-size: 1.4rem;
-      }
-
-      .back-arrow {
-        font-size: 1.2rem;
       }
     }
   </style>
 </head>
 <body>
   <header>
-    <span class="back-arrow" id="backArrow" title="Back">&larr;</span>
-    <h1>Wallpaper Gallery</h1>
+    <h1>Wally</h1>
+    <button class="theme-toggle" id="themeToggle">Toggle Theme</button>
   </header>
 
   <div class="container">
-    <div class="gallery" id="gallery">
-      <!-- 12 Random images -->
-      <img src="https://picsum.photos/200/300?random=1" alt="Wallpaper 1">
-      <img src="https://picsum.photos/200/300?random=2" alt="Wallpaper 2">
-      <img src="https://picsum.photos/200/300?random=3" alt="Wallpaper 3">
-      <img src="https://picsum.photos/200/300?random=4" alt="Wallpaper 4">
-      <img src="https://picsum.photos/200/300?random=5" alt="Wallpaper 5">
-      <img src="https://picsum.photos/200/300?random=6" alt="Wallpaper 6">
-      <img src="https://picsum.photos/200/300?random=7" alt="Wallpaper 7">
-      <img src="https://picsum.photos/200/300?random=8" alt="Wallpaper 8">
-      <img src="https://picsum.photos/200/300?random=9" alt="Wallpaper 9">
-      <img src="https://picsum.photos/200/300?random=10" alt="Wallpaper 10">
-      <img src="https://picsum.photos/200/300?random=11" alt="Wallpaper 11">
-      <img src="https://picsum.photos/200/300?random=12" alt="Wallpaper 12">
+    <div class="tabs">
+      <div class="tab active" data-type="popular">Popular Wallpapers</div>
+      <div class="tab" data-type="new">New Wallpapers</div>
     </div>
+
+    <div class="gallery" id="gallery"></div>
   </div>
 
   <div class="overlay" id="overlay">
-    <img id="overlayImage" src="" alt="Enlarged Wallpaper">
+    <div class="overlay-header">
+      <span class="back-arrow" id="backArrow">&larr;</span>
+    </div>
+    <div class="overlay-content">
+      <img id="overlayImage" src="" alt="Full Wallpaper">
+      <div class="overlay-title" id="imageTitle"></div>
+      <div class="overlay-info" id="imageInfo"></div>
+    </div>
   </div>
 
   <footer>
-    © 2025 Wallpaper Gallery | Images from <a href="https://picsum.photos" target="_blank">Picsum Photos</a>
+    © 2025 Wally
   </footer>
 
   <script>
+    const gallery = document.getElementById('gallery');
     const overlay = document.getElementById('overlay');
     const overlayImage = document.getElementById('overlayImage');
-    const gallery = document.getElementById('gallery');
+    const imageTitle = document.getElementById('imageTitle');
+    const imageInfo = document.getElementById('imageInfo');
     const backArrow = document.getElementById('backArrow');
+    const themeToggle = document.getElementById('themeToggle');
+    const tabs = document.querySelectorAll('.tab');
 
-    // Show overlay on image click
-    gallery.addEventListener('click', function(e) {
+    const wallpapers = {
+      popular: Array.from({length: 12}, (_, i) => ({
+        src: `https://picsum.photos/300/400?random=${i + 1}`,
+        title: `Popular Wallpaper #${i + 1}`
+      })),
+      new: Array.from({length: 12}, (_, i) => ({
+        src: `https://picsum.photos/300/400?random=${i + 100}`,
+        title: `New Wallpaper #${i + 1}`
+      }))
+    };
+
+    function loadWallpapers(type = 'popular') {
+      gallery.innerHTML = '';
+      wallpapers[type].forEach(wallpaper => {
+        const img = document.createElement('img');
+        img.src = wallpaper.src;
+        img.dataset.title = wallpaper.title;
+        gallery.appendChild(img);
+      });
+    }
+
+    gallery.addEventListener('click', (e) => {
       if (e.target.tagName === 'IMG') {
         overlayImage.src = e.target.src;
+        imageTitle.textContent = e.target.dataset.title || '';
+        imageInfo.textContent = "Loading image info...";
         overlay.classList.add('active');
-        backArrow.style.display = 'block';
-        location.hash = 'overview';
+        document.body.style.overflow = 'hidden';
+        history.replaceState(null, null, "#overview");
+
+        overlayImage.onload = async () => {
+          const width = overlayImage.naturalWidth;
+          const height = overlayImage.naturalHeight;
+          let sizeKB = '?';
+
+          try {
+            const response = await fetch(overlayImage.src, { method: 'HEAD' });
+            const contentLength = response.headers.get("Content-Length");
+            if (contentLength) {
+              sizeKB = (parseInt(contentLength) / 1024).toFixed(1) + ' KB';
+            }
+          } catch {
+            sizeKB = 'Unknown size';
+          }
+
+          imageInfo.textContent = `Resolution: ${width}×${height} — Size: ${sizeKB}`;
+        };
       }
     });
 
-    // Close overlay
     function closeOverlay() {
       overlay.classList.remove('active');
       overlayImage.src = '';
-      backArrow.style.display = 'none';
-      history.pushState("", document.title, window.location.pathname + window.location.search);
+      imageTitle.textContent = '';
+      imageInfo.textContent = '';
+      document.body.style.overflow = '';
+      history.replaceState(null, null, window.location.pathname + window.location.search);
     }
 
-    // Handle back arrow click
     backArrow.addEventListener('click', closeOverlay);
 
-    // Optional: close on clicking outside image
-    overlay.addEventListener('click', (e) => {
-      if (e.target === overlay) {
-        closeOverlay();
-      }
-    });
-
-    // Handle hash change (for direct linking or back button)
     window.addEventListener('hashchange', () => {
       if (location.hash !== '#overview') {
         closeOverlay();
       }
     });
 
-    // Check hash on load (e.g. user refreshes on #overview)
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        loadWallpapers(tab.dataset.type);
+      });
+    });
+
+    themeToggle.addEventListener('click', () => {
+      const html = document.documentElement;
+      html.dataset.theme = html.dataset.theme === 'dark' ? 'light' : 'dark';
+    });
+
     window.addEventListener('load', () => {
+      loadWallpapers('popular');
       if (location.hash === '#overview') {
-        history.replaceState("", document.title, window.location.pathname + window.location.search);
+        closeOverlay();
       }
     });
   </script>
